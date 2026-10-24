@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST 1 TRẮC NGHIỆM CẤP TRƯỜNG KHỐI 5</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .badge {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .image-container {
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            height: auto;
+        }
+        .question {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 25px 0;
+            color: #333;
+            text-align: left;
+            line-height: 1.5;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #1a73e8;
+        }
+        .options-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .option-item {
+            background: #f8f9fa;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .option-item:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+        }
+        .option-item.selected {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-submit {
+            background-color: #1a73e8;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-submit:hover { background-color: #155cb4; }
+        .counter {
+            font-size: 12px;
+            color: #777;
+            text-align: left;
+            margin-top: 5px;
+            padding-left: 15px;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .btn-nav {
+            background-color: white;
+            color: #333;
+            border: 2px solid #ddd;
+            flex: 1;
+        }
+        .btn-nav:hover { background-color: #eee; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <span class="badge" id="quest-type">FILL IN BLANK</span>
+            <span id="question-id">Câu hỏi: 2</span>
+        </div>
+
+        <div class="image-container" id="img-box" style="display: none;">
+            <img id="quest-img" src="" alt="Question Image">
+        </div>
+
+        <div class="question" id="quest-text">Nội dung câu hỏi ở đây</div>
+
+        <!-- Vùng câu hỏi Điền từ -->
+        <div id="fill-section" style="display: none;">
+            <div class="input-group">
+                <div style="flex: 1;">
+                    <input type="text" id="answer-input" placeholder="Nhập đáp án của bạn..." oninput="updateCounter()">
+                    <div class="counter" id="char-counter">Đã nhập: 0 ký tự</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vùng câu hỏi Trắc nghiệm nhiều lựa chọn -->
+        <div id="choice-section" style="display: none;">
+            <div class="options-group" id="options-box">
+                <!-- Các phương án A, B, C, D hiển thị ở đây -->
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="checkAnswer()">Kiểm tra kết quả</button>
+    </div>
+
+    <div class="navigation">
+        <button class="btn-nav" onclick="changeQuestion(-1)">← Trước</button>
+        <button class="btn-nav" onclick="changeQuestion(1)">Sau →</button>
+    </div>
+
+    <script>
+        // Cơ sở dữ liệu danh sách câu hỏi trích từ file văn bản của bạn
+        const quizData = [
+            {
+                id: 2,
+                type: "fill",
+                text: "She t_ _ _ lots of photos at the food festival yesterday.",
+                ans: "took"
+            },
+            {
+                id: 3,
+                type: "fill",
+                text: "How often do you visit your grandparents? - Once a w_ _ _.",
+                ans: "week"
+            },
+            {
+                id: 4,
+                type: "choice",
+                text: "The city is crowded ___ busy.",
+                options: ["or", "but", "with", "and"],
+                ans: "D"
+            },
+            {
+                id: 6,
+                type: "choice",
+                text: "Write a question for the underlined part: <u>My house is big and new. I love it.</u>",
+                options: ["Who do you live with?", "Where are you living now?", "What's your house like?", "What's your address?"],
+                ans: "C"
+            },
+            {
+                id: 8,
+                type: "fill",
+                text: "Where _ _ Ba and Hung live?",
+                ans: "do"
+            },
+            {
+                id: 9,
+                type: "choice",
+                text: "My favourite food is _____.",
+                img: "https://imgur.com", // Ảnh đùi gà chiên mẫu
+                options: ["pork", "fish", "beef", "chicken"],
+                ans: "D"
+            },
+            {
+                id: 10,
+                type: "fill",
+                text: "She al_ _ _ _ _ finishes her homework before going to bed.",
+                ans: "always"
+            },
+            {
+                id: 25,
+                type: "choice",
+                text: "There is a _____ bird on the tree. (XANH DƯƠNG)",
+                options: ["green", "yellow", "orange", "blue"],
+                ans: "D"
+            },
+            {
+                id: 58,
+                type: "fill",
+                text: "William can play the _ _ _ _ _ very well.",
+                ans: "piano"
+            },
+            {
+                id: 161,
+                type: "choice",
+                text: "Where is the book? - It's ________ the table.",
+                options: ["in front of", "on", "above", "under"],
+                ans: "D"
+            }
+        ];
+
+        let currentIndex = 0;
+        let selectedChoice = "";
+
+        function loadQuestion() {
+            const current = quizData[currentIndex];
+            document.getElementById("question-id").innerText = "Câu hỏi: " + current.id;
+            document.getElementById("quest-text").innerHTML = current.text;
+            
+            // Xử lý hiển thị ảnh câu hỏi nếu có
+            const imgBox = document.getElementById("img-box");
+            if (current.img) {
+                document.getElementById("quest-img").src = current.img;
+                imgBox.style.display = "block";
+            } else {
+                imgBox.style.display = "none";
+            }
+
+            // Phân loại kiểu hiển thị form trả lời
+            if (current.type === "fill") {
+                document.getElementById("quest-type").innerText = "FILL IN BLANK";
+                document.getElementById("fill-section").style.display = "block";
+                document.getElementById("choice-section").style.display = "none";
+                document.getElementById("answer-input").value = "";
+                updateCounter();
+            } else {
+                document.getElementById("quest-type").innerText = "MULTIPLE CHOICE";
+                document.getElementById("fill-section").style.display = "none";
+                document.getElementById("choice-section").style.display = "block";
+                
+                selectedChoice = "";
+                const optionsBox = document.getElementById("options-box");
+                optionsBox.innerHTML = "";
+                
+                const labels = ["A", "B", "C", "D"];
+                current.options.forEach((opt, idx) => {
+                    const div = document.createElement("div");
+                    div.className = "option-item";
+                    div.innerText = labels[idx] + ". " + opt;
+                    div.onclick = function() {
+                        const items = optionsBox.getElementsByClassName("option-item");
+                        for(let item of items) item.classList.remove("selected");
+                        div.classList.add("selected");
+                        selectedChoice = labels[idx];
+                    };
